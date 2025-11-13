@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale1.0">
+    <title>Caja Registradora - Pearls Resort</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- Estilos Globales --- */
+        :root {
+            --primary-color: #4c95dd; /* Azul profundo elegante */
+            --secondary-color: #f4f7f6; /* Fondo gris suave */
+            --text-color: #333;
+            --white-color: #ffffff;
+            --border-color: #eef2f5;
+        }
+
+        /* --- NUEVO: Animación de entrada --- */
+        @keyframes popIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* --- MODIFICADO: Body y Fondo con Blur --- */
+        body {
+            font-family: 'Montserrat', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px; /* Este padding define el marco */
+            box-sizing: border-box;
+            
+            /* Imagen de fondo base (opcional, por si el blur falla) */
+            background-image: url('https://i.postimg.cc/Pfb7PBFz/Captura-de-pantalla-2025-11-13-163148.png');
+            background-size: cover;
+            background-position: center;
+            overflow: hidden; /* Evita el scroll de la página */
+        }
+
+        /* --- NUEVO: Capa de fondo con Blur --- */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            /* ¡¡¡ REEMPLAZA ESTA URL !!! */
+            background-image: url('https://i.postimg.cc/Pfb7PBFz/Captura-de-pantalla-2025-11-13-163148.png');
+            background-size: cover;
+            background-position: center;
+            
+            /* El efecto de desenfoque */
+            filter: blur(10px);
+            -webkit-filter: blur(10px);
+            
+            /* Se asegura que esté detrás de todo */
+            z-index: -1; 
+        }
+
+        /* --- MODIFICADO: Contenedor Principal (Tamaño y Efecto Glass) --- */
+        .cash-register-container {
+            width: 100%;
+            max-width: 1250px;
+            
+            /* --- AJUSTE DE ALTURA CORREGIDO --- */
+            height: 100%; /* <-- CAMBIO: De '90vh' a '100%' */
+            
+            /* --- EFECTO "FROSTED GLASS" --- */
+            background-color: rgba(255, 255, 255, 0.75); /* Blanco semi-transparente */
+            backdrop-filter: blur(15px); /* Desenfoca lo que está detrás del contenedor */
+            -webkit-backdrop-filter: blur(15px);
+            /* --- FIN EFECTO --- */
+
+            border-radius: 16px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+
+            /* Animación de entrada */
+            animation: popIn 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        /* --- Cabecera --- */
+        .register-header {
+            background-color: var(--primary-color);
+            color: var(--white-color);
+            padding: 20px 30px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            /* Sombra sutil para despegar del fondo */
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
+            z-index: 10; /* Asegura que esté sobre el cuerpo */
+        }
+
+        .register-header .banner-img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .register-header h1 {
+            margin: 0;
+            font-weight: 600;
+            font-size: 1.8em;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        /* --- MODIFICADO: Cuerpo principal (para flex-grow) --- */
+        .register-body {
+            display: flex;
+            flex-wrap: wrap; 
+            flex: 1; /* Hace que esta sección ocupe todo el espacio sobrante */
+            min-height: 0; /* Solución clave para que el overflow funcione en flex */
+        }
+
+        /* --- MODIFICADO: Panel Izquierdo (para scroll interno) --- */
+        .product-panel {
+            flex: 2; 
+            padding: 30px;
+            background-color: transparent; /* Ahora es transparente */
+            min-width: 300px;
+            border-right: 1px solid var(--border-color);
+
+            /* Habilita flex-box para controlar el scroll del menú */
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .product-panel h2 {
+            margin-top: 0;
+            color: var(--text-color);
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 15px;
+            font-weight: 600;
+            flex-shrink: 0; /* El título no se encoge */
+        }
+
+        /* --- MODIFICADO: Menú de Productos (para scroll interno) --- */
+        .product-menu {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 20px;
+            
+            /* MODIFICADO */
+            flex: 1; /* Ocupa el espacio restante */
+            overflow-y: auto; /* AÑADE SCROLL INTERNO */
+            /* max-height: 500px; ELIMINADO */ 
+            
+            padding-right: 10px;
+        }
+
+        .product-btn {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--white-color);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .product-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.08);
+            border-color: var(--primary-color);
+        }
+
+        .product-btn .product-name {
+            font-size: 1em;
+            font-weight: 600;
+            color: var(--text-color);
+            margin-bottom: 5px;
+        }
+
+        .product-btn .product-price {
+            font-size: 0.9em;
+            font-weight: 400;
+            color: #555;
+        }
+
+        /* --- MODIFICADO: Panel Central (Boleta) --- */
+        .receipt-panel {
+            flex: 1.5; 
+            padding: 30px;
+            background-color: rgba(253, 253, 253, 0.5); /* Ligeramente transparente */
+            border-right: 1px solid var(--border-color);
+            min-width: 300px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .receipt-header {
+            display: flex;
+            justify-content: space-between;
+            color: #555;
+            font-weight: 600;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--border-color);
+            margin-bottom: 15px;
+            flex-shrink: 0; /* No se encoge */
+        }
+
+        /* --- MODIFICADO: Lista de Ítems (para scroll interno) --- */
+        .item-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            flex-grow: 1; /* Ya estaba, perfecto */
+            
+            /* max-height: 400px; ELIMINADO */
+            overflow-y: auto; /* Ya estaba, perfecto */
+        }
+
+        .item-list li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px dashed #ddd;
+            font-size: 0.95em;
+        }
+
+        .item-list li .item-details {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            cursor: pointer; 
+        }
+        
+        .item-list li .item-details:hover .item-name {
+            color: var(--primary-color); 
+        }
+
+        .item-list li .item-name {
+            font-weight: 500;
+            color: #333;
+            transition: color 0.2s ease;
+        }
+
+        .item-list li .item-qty {
+            font-size: 0.8em;
+            color: #777;
+            font-weight: 600;
+        }
+
+        .item-list li .item-price-remove {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .item-list li .item-price {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .item-list li .remove-item-btn {
+            background: none;
+            border: none;
+            color: #cc0000;
+            font-size: 1.1em;
+            cursor: pointer;
+            padding: 0 5px;
+            opacity: 0.7;
+            transition: opacity 0.2s ease;
+        }
+        .item-list li .remove-item-btn:hover {
+            opacity: 1;
+        }
+
+        /* --- Total y Botones --- */
+        .receipt-summary {
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 2px solid var(--primary-color);
+            flex-shrink: 0; /* No se encoge */
+        }
+
+        .receipt-total {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .total-label {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .total-value {
+            font-size: 2em;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .btn {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.1em;
+            font-weight: 600;
+            padding: 18px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-clear {
+            background-color: #d0dbe2;
+            color: #333;
+        }
+        .btn-clear:hover {
+            background-color: #b9c5ce;
+        }
+
+        /* --- MODIFICADO: Panel Derecho (Publicidad) --- */
+        .ad-panel {
+            flex: 1; 
+            padding: 30px;
+            background-color: transparent; /* Transparente */
+            min-width: 200px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            overflow-y: auto; /* Scroll por si el texto es muy largo */
+        }
+
+        .ad-panel h2 {
+            margin-top: 0;
+            color: var(--text-color);
+            font-weight: 600;
+            text-align: center;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--border-color);
+            width: 100%;
+            flex-shrink: 0; /* No se encoge */
+        }
+
+        .ad-image-container {
+            width: 100%;
+            height: 250px; 
+            background-color: #e0e6eb;
+            border-radius: 12px;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 15px;
+            flex-shrink: 0; /* No se encoge */
+        }
+
+        .ad-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .ad-text {
+            text-align: center;
+            color: #555;
+            font-size: 0.9em;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="cash-register-container">
+        
+        <div class="register-header">
+            <img src="https://i.postimg.cc/CLQVJ3HV/Captura-de-pantalla-2025-11-13-155441-1.png" alt="Pearls Resort Banner" class="banner-img">
+            <h1>Pearls Resort</h1>
+        </div>
+
+        <div class="register-body">
+
+            <div class="product-panel">
+                <h2>Menú de Productos</h2>
+                <div class="product-menu" id="product-menu">
+                    </div>
+            </div>
+
+            <div class="receipt-panel">
+                
+                <div class="receipt-header">
+                    <span>Ítem y Cantidad</span>
+                    <span>Precio</span>
+                </div>
+
+                <ul class="item-list" id="item-list">
+                    </ul>
+
+                <div class="receipt-summary">
+                    <div class="receipt-total">
+                        <span class="total-label">TOTAL</span>
+                        <span class="total-value" id="total-value">$0</span>
+                    </div>
+                    <div class="action-buttons">
+                        <button class="btn btn-clear" id="clear-btn">LIMPIAR</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="ad-panel">
+                
+                <h2>¡Recuerda!</h2>
+                <div class="ad-image-container">
+                    <img src="https://via.placeholder.com/300x250?text=Tu+Anuncio+Aquí" alt="Publicidad" class="ad-image">
+                </div>
+                <p class="ad-text">
+                    Descubre nuestras ofertas especiales de verano. ¡Reservas con descuentos exclusivos para huéspedes!
+                </p>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // --- 1. (MODIFICADO) Definición de Productos (10 ítems) ---
+        const products = [
+            { id: 'p1', name: "Pescado", price: 1500 },
+            { id: 'p2', name: "Atún", price: 2000 },
+            { id: 'p3', name: "Camarones", price: 2500 },
+            { id: 'p4', name: "Ceviche", price: 3000 },
+            { id: 'p5', name: "Bebida", price: 800 },
+            { id: 'p6', name: "Jugo Natural", price: 1200 },
+            { id: 'p7', name: "Postre del Día", price: 1000 },
+            { id: 'p8', name: "Café", price: 700 },
+            { id: 'p9', name: "Empanada", price: 1800 },
+            { id: 'p10', name: "Agua Mineral", price: 600 }
+        ];
+
+        // --- 2. Variables Globales ---
+        let cart = []; // Ejemplo: [{ product: {id:'p2', ...}, qty: 3 }]
+
+        // --- 3. Referencias a Elementos del DOM ---
+        const productMenu = document.getElementById('product-menu');
+        const itemList = document.getElementById('item-list');
+        const totalValue = document.getElementById('total-value');
+        const clearButton = document.getElementById('clear-btn');
+        
+        // --- 4. Formateador de Moneda ---
+        const currencyFormatter = new Intl.NumberFormat('es-CL', {
+            style: 'currency',
+            currency: 'CLP',
+            minimumFractionDigits: 0
+        });
+
+        // --- 5. Función para crear el Menú de Productos ---
+        function initializeMenu() {
+            products.forEach(product => {
+                const button = document.createElement('button');
+                button.classList.add('product-btn');
+                button.dataset.productId = product.id;
+                
+                // (RESTABLECIDO) Mostrar nombre y precio
+                button.innerHTML = `
+                    <span class="product-name">${product.name}</span>
+                    <span class="product-price">${currencyFormatter.format(product.price)}</span>
+                `;
+                
+                // (RESTABLECIDO) Evento de click para incrementar
+                button.addEventListener('click', () => addOrIncrementItemInCart(product));
+                productMenu.appendChild(button);
+            });
+        }
+
+        // --- 6. (MODIFICADO) Función para Preguntar Cantidad y Añadir/Actualizar ---
+        function addOrIncrementItemInCart(productToAdd) {
+            const existingItemIndex = cart.findIndex(item => item.product.id === productToAdd.id);
+            const currentQty = (existingItemIndex !== -1) ? cart[existingItemIndex].qty : 0;
+
+            // Sugerir la cantidad actual si ya está en el carro, o '1' si es nuevo
+            const defaultQty = (currentQty > 0) ? currentQty : 1;
+            
+            const newQtyStr = prompt(`Ingrese la cantidad para "${productToAdd.name}":`, defaultQty);
+
+            // Si el usuario presiona "Cancelar", no hacer nada
+            if (newQtyStr === null) {
+                return;
+            }
+
+            const newQty = parseInt(newQtyStr);
+
+            // Validación
+            if (isNaN(newQty) || newQty < 0) { // No permitir negativos
+                alert('Cantidad no válida. Ingrese solo números positivos.');
+                return;
+            }
+
+            if (newQty === 0) {
+                // Si la nueva cantidad es 0, eliminar el ítem (si existía)
+                if (existingItemIndex !== -1) {
+                    removeItemFromCart(productToAdd.id); // Llama a la función #8
+                }
+                // Si era nuevo y pone 0, no se hace nada y no se actualiza la boleta
+            } else {
+                // Si es > 0, actualizar o añadir
+                if (existingItemIndex !== -1) {
+                    // Actualizar cantidad
+                    cart[existingItemIndex].qty = newQty;
+                } else {
+                    // Añadir como nuevo
+                    cart.push({ product: productToAdd, qty: newQty });
+                }
+                updateReceipt(); // Actualizar la boleta solo si hay un cambio positivo
+            }
+        }
+
+        // --- 7. (NUEVO) Función para Preguntar por la Nueva Cantidad ---
+        function promptForQuantity(productId) {
+            const itemIndex = cart.findIndex(item => item.product.id === productId);
+            if (itemIndex === -1) return; // No debería pasar, pero por si acaso
+
+            const item = cart[itemIndex];
+            
+            const newQtyStr = prompt(`Ingrese la nueva cantidad para "${item.product.name}":`, item.qty);
+
+            // Si el usuario presiona "Cancelar", no hacer nada
+            if (newQtyStr === null) {
+                return;
+            }
+
+            const newQty = parseInt(newQtyStr);
+
+            // Validación
+            if (isNaN(newQty)) {
+                alert('Cantidad no válida. Ingrese solo números.');
+                return;
+            }
+
+            if (newQty <= 0) {
+                // Si la nueva cantidad es 0 o menos, eliminar el ítem
+                removeItemFromCart(productId);
+            } else {
+                // Si es válida, actualizar la cantidad
+                cart[itemIndex].qty = newQty;
+                updateReceipt();
+            }
+        }
+
+
+        // --- 8. Función para Quitar un Ítem del Carrito (Botón X) ---
+        function removeItemFromCart(productId) {
+            cart = cart.filter(item => item.product.id !== productId);
+            updateReceipt();
+        }
+
+        // --- 9. Función para Actualizar la Boleta (Lista y Total) ---
+        function updateReceipt() {
+            itemList.innerHTML = ''; 
+            let currentTotal = 0;
+
+            cart.forEach(item => {
+                const li = document.createElement('li');
+                const itemTotalPrice = item.product.price * item.qty;
+                
+                li.innerHTML = `
+                    <div class="item-details" data-product-id="${item.product.id}">
+                        <span class="item-name">${item.product.name}</span>
+                        <span class="item-qty">x${item.qty}</span>
+                    </div>
+                    <div class="item-price-remove">
+                        <span class="item-price">${currencyFormatter.format(itemTotalPrice)}</span>
+                        <button class="remove-item-btn" data-product-id="${item.product.id}">X</button>
+                    </div>
+                `;
+                itemList.appendChild(li);
+                
+                currentTotal += itemTotalPrice;
+            });
+
+            totalValue.textContent = currencyFormatter.format(currentTotal);
+
+            // --- Añadir event listeners (NUEVOS y antiguos) ---
+
+            // (NUEVO) Event listener para cambiar cantidad (clic en el ítem)
+            document.querySelectorAll('.item-details').forEach(button => {
+                button.addEventListener('click', (event) => {
+                    const productIdToUpdate = event.currentTarget.dataset.productId;
+                    promptForQuantity(productIdToUpdate);
+                });
+            });
+
+            // (ANTIGUO) Event listener para remover ítem (clic en la 'X')
+            document.querySelectorAll('.remove-item-btn').forEach(button => {
+                button.addEventListener('click', (event) => {
+                    // Detener la propagación para que no active el clic en 'item-details'
+                    event.stopPropagation(); 
+                    const productIdToRemove = event.target.dataset.productId;
+                    removeItemFromCart(productIdToRemove);
+                });
+            });
+        }
+
+        // --- 10. Función para Limpiar la Caja ---
+        function clearCart() {
+            cart = [];
+            updateReceipt();
+        }
+
+        // --- 11. Inicialización ---
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeMenu();
+            clearButton.addEventListener('click', clearCart);
+            updateReceipt();
+        });
+
+    </script>
+
+</body>
+</html>
